@@ -8,6 +8,7 @@ import android.view.View;
 
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import retrofit.HttpException;
 import rx.Subscriber;
 import rx.Subscription;
@@ -33,11 +34,9 @@ public class MainViewModel implements ViewModel {
     private Context context;
     private Subscription subscription;
     private List<Repository> repositories;
-    private DataListener dataListener;
 
-    public MainViewModel(Context context, DataListener dataListener) {
+    public MainViewModel(Context context) {
         this.context = context;
-        this.dataListener = dataListener;
         infoMessageVisibility = new ObservableInt(View.VISIBLE);
         progressVisibility = new ObservableInt(View.INVISIBLE);
         recyclerViewVisibility = new ObservableInt(View.INVISIBLE);
@@ -45,16 +44,11 @@ public class MainViewModel implements ViewModel {
         infoMessage = new ObservableField<>(context.getString(R.string.default_info_message));
     }
 
-    public void setDataListener(DataListener dataListener) {
-        this.dataListener = dataListener;
-    }
-
     @Override
     public void destroy() {
         if (subscription != null && !subscription.isUnsubscribed()) subscription.unsubscribe();
         subscription = null;
         context = null;
-        dataListener = null;
     }
 
     public void loadGithubRepos(String username) {
@@ -70,7 +64,8 @@ public class MainViewModel implements ViewModel {
                 .subscribe(new Subscriber<List<Repository>>() {
                     @Override
                     public void onCompleted() {
-                        if (dataListener != null) dataListener.onRepositoriesChanged(repositories);
+                        EventBus.getDefault().postSticky(repositories);
+
                         progressVisibility.set(View.INVISIBLE);
                         if (!repositories.isEmpty()) {
                             recyclerViewVisibility.set(View.VISIBLE);
@@ -104,7 +99,4 @@ public class MainViewModel implements ViewModel {
         return error instanceof HttpException && ((HttpException) error).code() == 404;
     }
 
-    public interface DataListener {
-        void onRepositoriesChanged(List<Repository> repositories);
-    }
 }

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -16,13 +17,14 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
+import de.greenrobot.event.EventBus;
 import uk.ivanc.archimvvm.R;
 import uk.ivanc.archimvvm.RepositoryAdapter;
 import uk.ivanc.archimvvm.databinding.MainActivityBinding;
 import uk.ivanc.archimvvm.model.Repository;
 import uk.ivanc.archimvvm.viewmodel.MainViewModel;
 
-public class MainActivity extends AppCompatActivity implements MainViewModel.DataListener {
+public class MainActivity extends AppCompatActivity {
 
     private MainActivityBinding binding;
     private MainViewModel mainViewModel;
@@ -34,12 +36,13 @@ public class MainActivity extends AppCompatActivity implements MainViewModel.Dat
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.main_activity);
-        mainViewModel = new MainViewModel(this, this);
+        mainViewModel = new MainViewModel(this);
         binding.setViewModel(mainViewModel);
         setSupportActionBar(binding.toolbar);
         setupRecyclerView(binding.reposRecyclerView);
 
         ButterKnife.bind(this);
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -47,12 +50,12 @@ public class MainActivity extends AppCompatActivity implements MainViewModel.Dat
         super.onDestroy();
         mainViewModel.destroy();
         ButterKnife.unbind(this);
+        EventBus.getDefault().unregister(this);
     }
 
-    @Override
-    public void onRepositoriesChanged(List<Repository> repositories) {
-        RepositoryAdapter adapter =
-                (RepositoryAdapter) binding.reposRecyclerView.getAdapter();
+    // loadGithubRepos 事件相应
+    public void onEvent(List<Repository> repositories) {
+        RepositoryAdapter adapter = (RepositoryAdapter) binding.reposRecyclerView.getAdapter();
         adapter.setRepositories(repositories);
         adapter.notifyDataSetChanged();
         hideSoftKeyboard();
