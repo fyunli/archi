@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements MainViewModel.Dat
     protected void onDestroy() {
         super.onDestroy();
         mainViewModel.destroy();
+        ButterKnife.unbind(this);
     }
 
     @Override
