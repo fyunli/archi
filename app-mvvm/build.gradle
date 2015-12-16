@@ -37,6 +37,12 @@ dependencies {
     compile dependencies.rxAndroid
     compile dependencies.circleImageView
 
+    provided 'javax.annotation:javax.annotation-api:1.2'
+    provided 'com.google.dagger:dagger-compiler:2.0.2'
+    compile 'com.google.dagger:dagger:2.0.2'
+    compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'de.greenrobot:eventbus:2.4.0'
+
     testCompile dependencies.jUnit
     testCompile dependencies.mockito
     testCompile dependencies.robolectric
@@ -45,9 +51,9 @@ dependencies {
 // fix for dataBinder: Source folders generated at incorrect location
 android.applicationVariants.all { variant ->
     def variantName = variant.name.capitalize()
-    def inputDir    = "${buildDir}/intermediates/classes/${variant.dirName}"
-    def sourceDir   = "${buildDir}/generated/source/dataBinding/${variant.dirName}"
-    def copyTask    = tasks.create(name: "dataBindingFix${variantName}", type: Copy) {
+    def inputDir = "${buildDir}/intermediates/classes/${variant.dirName}"
+    def sourceDir = "${buildDir}/generated/source/dataBinding/${variant.dirName}"
+    def copyTask = tasks.create(name: "dataBindingFix${variantName}", type: Copy) {
         from inputDir
         into sourceDir
         include '**/*.java'

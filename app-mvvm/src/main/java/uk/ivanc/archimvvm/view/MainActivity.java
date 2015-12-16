@@ -6,10 +6,16 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.OnTextChanged;
 import uk.ivanc.archimvvm.R;
 import uk.ivanc.archimvvm.RepositoryAdapter;
 import uk.ivanc.archimvvm.databinding.MainActivityBinding;
@@ -21,6 +27,9 @@ public class MainActivity extends AppCompatActivity implements MainViewModel.Dat
     private MainActivityBinding binding;
     private MainViewModel mainViewModel;
 
+    @Bind(R.id.edit_text_username)
+    EditText editTextUsername;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements MainViewModel.Dat
         binding.setViewModel(mainViewModel);
         setSupportActionBar(binding.toolbar);
         setupRecyclerView(binding.reposRecyclerView);
+
+        ButterKnife.bind(this);
     }
 
     @Override
@@ -55,6 +66,17 @@ public class MainActivity extends AppCompatActivity implements MainViewModel.Dat
     private void hideSoftKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(binding.editTextUsername.getWindowToken(), 0);
+    }
+
+    @OnClick(R.id.button_search)
+    public void onButtonSearchClick(View v) {
+        String username = editTextUsername.getText().toString();
+        mainViewModel.loadGithubRepos(username);
+    }
+
+    @OnTextChanged(R.id.edit_text_username)
+    public void onEditTextUsernameChanged(CharSequence charSequence, int start, int before, int count) {
+        mainViewModel.searchButtonVisibility.set(charSequence.length() > 0 ? View.VISIBLE : View.GONE);
     }
 
 }
