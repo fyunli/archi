@@ -8,6 +8,8 @@ import android.view.View;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 import retrofit.HttpException;
 import rx.Subscriber;
@@ -35,13 +37,17 @@ public class MainViewModel implements ViewModel {
     private Subscription subscription;
     private List<Repository> repositories;
 
+    @Inject GithubService githubService;
+
     public MainViewModel(Context context) {
         this.context = context;
+
         infoMessageVisibility = new ObservableInt(View.VISIBLE);
         progressVisibility = new ObservableInt(View.INVISIBLE);
         recyclerViewVisibility = new ObservableInt(View.INVISIBLE);
         searchButtonVisibility = new ObservableInt(View.GONE);
         infoMessage = new ObservableField<>(context.getString(R.string.default_info_message));
+        ArchiApplication.get(context).getGithubComponent().inject(this);
     }
 
     @Override
@@ -57,7 +63,6 @@ public class MainViewModel implements ViewModel {
         infoMessageVisibility.set(View.INVISIBLE);
         if (subscription != null && !subscription.isUnsubscribed()) subscription.unsubscribe();
         ArchiApplication application = ArchiApplication.get(context);
-        GithubService githubService = application.getGithubService();
         subscription = githubService.publicRepositories(username)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(application.defaultSubscribeScheduler())

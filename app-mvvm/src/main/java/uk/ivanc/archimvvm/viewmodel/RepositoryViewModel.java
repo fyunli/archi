@@ -10,6 +10,8 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import javax.inject.Inject;
+
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -37,7 +39,11 @@ public class RepositoryViewModel implements ViewModel {
     public ObservableInt ownerLocationVisibility;
     public ObservableInt ownerLayoutVisibility;
 
+    @Inject GithubService githubService;
+
     public RepositoryViewModel(Context context, final Repository repository) {
+        ArchiApplication.get(context).getGithubComponent().inject(this);
+
         this.repository = repository;
         this.context = context;
         this.ownerName = new ObservableField<>();
@@ -98,7 +104,6 @@ public class RepositoryViewModel implements ViewModel {
 
     private void loadFullUser(String url) {
         ArchiApplication application = ArchiApplication.get(context);
-        GithubService githubService = application.getGithubService();
         subscription = githubService.userFromUrl(url)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(application.defaultSubscribeScheduler())

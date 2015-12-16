@@ -6,14 +6,11 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 
 import java.util.List;
 
-import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
@@ -29,15 +26,14 @@ public class MainActivity extends AppCompatActivity {
     private MainActivityBinding binding;
     private MainViewModel mainViewModel;
 
-    @Bind(R.id.edit_text_username)
-    EditText editTextUsername;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.main_activity);
+
         mainViewModel = new MainViewModel(this);
         binding.setViewModel(mainViewModel);
+
         setSupportActionBar(binding.toolbar);
         setupRecyclerView(binding.reposRecyclerView);
 
@@ -53,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         EventBus.getDefault().unregister(this);
     }
 
-    // loadGithubRepos 事件相应
+    // loadGithubRepos onComplete
     public void onEvent(List<Repository> repositories) {
         RepositoryAdapter adapter = (RepositoryAdapter) binding.reposRecyclerView.getAdapter();
         adapter.setRepositories(repositories);
@@ -74,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_search)
     public void onButtonSearchClick(View v) {
-        String username = editTextUsername.getText().toString();
+        String username = binding.editTextUsername.getText().toString();
         mainViewModel.loadGithubRepos(username);
     }
 

@@ -5,27 +5,22 @@ import android.content.Context;
 
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
-import uk.ivanc.archimvvm.model.GithubService;
+import uk.ivanc.archimvvm.model.DaggerGithubComponent;
+import uk.ivanc.archimvvm.model.GithubComponent;
 
 public class ArchiApplication extends Application {
 
-    private GithubService githubService;
     private Scheduler defaultSubscribeScheduler;
+    private GithubComponent githubComponent;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        githubComponent = DaggerGithubComponent.create();
+    }
 
     public static ArchiApplication get(Context context) {
         return (ArchiApplication) context.getApplicationContext();
-    }
-
-    public GithubService getGithubService() {
-        if (githubService == null) {
-            githubService = GithubService.Factory.create();
-        }
-        return githubService;
-    }
-
-    //For setting mocks during testing
-    public void setGithubService(GithubService githubService) {
-        this.githubService = githubService;
     }
 
     public Scheduler defaultSubscribeScheduler() {
@@ -39,4 +34,9 @@ public class ArchiApplication extends Application {
     public void setDefaultSubscribeScheduler(Scheduler scheduler) {
         this.defaultSubscribeScheduler = scheduler;
     }
+
+    public GithubComponent getGithubComponent(){
+        return githubComponent;
+    }
+
 }
